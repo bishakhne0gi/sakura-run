@@ -66,7 +66,7 @@ reports (id, building_id, reporter_id, reason, created_at)
 - The primary key on `building_id` gives one owner per plot; the unique
   `owner_id` gives one plot per user. Both races are settled by the database.
 - Claiming goes through an RPC `claim_plot(building_id)` that validates the id
-  against an `valid_buildings` table (loaded from world.json at deploy time) and
+  against a `valid_buildings` table (loaded from world.json at deploy time) and
   inserts. It returns either the row or a typed error: `taken`, `already_owner`,
   `invalid_building`, `not_signed_in`.
 - `update_sign(title, tagline)` RPC runs a server-side word filter before writing.
