@@ -89,7 +89,10 @@ const FRAGMENT = /* glsl */ `
 export class BlossomField {
   constructor({ count = 1800, extent = new THREE.Vector3(55, 26, 55), reducedMotion = false } = {}) {
     const geometry = new THREE.InstancedBufferGeometry();
-    const quad = new THREE.PlaneGeometry(0.16, 0.1);
+    // A tabebuia petal is ~4 cm. At the 0.16 x 0.1 m this started on, times a
+    // size multiplier of up to 2.2, petals rendered as 35 cm cards — playing
+    // cards drifting past the camera, not blossom.
+    const quad = new THREE.PlaneGeometry(0.085, 0.055);
     geometry.index = quad.index;
     geometry.attributes.position = quad.attributes.position;
     geometry.attributes.uv = quad.attributes.uv;
@@ -101,7 +104,7 @@ export class BlossomField {
     for (let i = 0; i < count; i++) {
       seed[i * 3] = Math.random();
       seed[i * 3 + 1] = 1.1 + Math.random() * 2.4;   // tumble rate
-      seed[i * 3 + 2] = 0.7 + Math.random() * 1.5;   // size
+      seed[i * 3 + 2] = 0.6 + Math.random() * 1.1;   // size
       origin[i * 3] = (Math.random() * 2 - 1) * extent.x;
       origin[i * 3 + 1] = (Math.random() * 2 - 1) * extent.y;
       origin[i * 3 + 2] = (Math.random() * 2 - 1) * extent.z;

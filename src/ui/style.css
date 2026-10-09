@@ -302,3 +302,53 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .toast, .veil, .veil button { transition: none; }
 }
+
+/* ---------------------------------------------------------------- minimap */
+
+/* A permanent heading-up minimap. Drawn from the same world.json as the city,
+   so it can never disagree with what is out of the window. */
+.minimap {
+  position: absolute;
+  right: 20px;
+  bottom: 74px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6px 22px rgba(50, 32, 40, 0.28);
+  opacity: 0.94;
+}
+
+/* ---------------------------------------------------------------- full map */
+
+.mapview {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: rgba(30, 24, 30, 0.55);
+  backdrop-filter: blur(2px);
+}
+.mapview canvas {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+}
+.mapview canvas:active { cursor: grabbing; }
+
+.maphead {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(50, 32, 40, 0.2);
+  pointer-events: none;
+}
+.maphead b { font-size: 14px; letter-spacing: 0.04em; }
+.maphead span { font-size: 12px; color: var(--ink-soft); }

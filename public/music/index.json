@@ -1,0 +1,39 @@
+{
+  "source": "Open Lo-Fi \u2014 https://github.com/btahir/open-lofi",
+  "license": "CC0 1.0 Universal (public domain). No attribution required.",
+  "attribution": "Music: Open Lo-Fi (CC0 1.0)",
+  "tracks": [
+    {
+      "file": "temple-at-dawn.mp3",
+      "title": "Temple at Dawn"
+    },
+    {
+      "file": "moon-through-bamboo.mp3",
+      "title": "Moon Through Bamboo"
+    },
+    {
+      "file": "paper-lantern-rain.mp3",
+      "title": "Paper Lantern Rain"
+    },
+    {
+      "file": "lanterns-in-slow-motion.mp3",
+      "title": "Lanterns in Slow Motion"
+    },
+    {
+      "file": "teacup-morning-fog.mp3",
+      "title": "Teacup Morning Fog"
+    },
+    {
+      "file": "bamboo-shadow-waltz.mp3",
+      "title": "Bamboo Shadow Waltz"
+    },
+    {
+      "file": "bells-before-sunrise.mp3",
+      "title": "Bells Before Sunrise"
+    },
+    {
+      "file": "misty-steam-quiet-dreams.mp3",
+      "title": "Misty Steam Quiet Dreams"
+    }
+  ]
+}

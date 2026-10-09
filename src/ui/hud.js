@@ -5,13 +5,17 @@
 const CONTROLS = [
   ["W A S D", "move"],
   ["Shift", "run"],
-  ["Mouse", "look"],
   ["V", "cycle"],
   ["B", "auto"],
   ["E", "interact"],
   ["P", "third person"],
+  ["G", "bird view"],
+  ["M", "map"],
   ["T", "time"],
-  ["M", "music"],
+  ["K", "ambience"],
+  ["J", "music"],
+  ["L", "style"],
+  ["O", "effects"],
   ["C", "coordinates"],
   ["Esc", "release"],
 ];
@@ -49,11 +53,12 @@ export class Hud {
           <p class="sub">Bengaluru · 12.917°N 77.642°E · tabebuia season</p>
           <p class="body">
             Two square kilometres of real HSR Layout, built from OpenStreetMap
-            footprints. Agara Lake, the Main and Cross grid, 2,223 buildings.
-            Walk it, cycle it, or take an auto.
+            footprints. Agara Lake, the Main and Cross grid, 2,223 buildings,
+            traffic and people on the streets. Walk it, cycle it, take an auto —
+            or lift off and read the whole layout from the air.
           </p>
           <button data-start>Click to enter</button>
-          <p class="hint">WASD move · Shift run · V cycle · B auto · Esc release cursor</p>
+          <p class="hint">WASD move · Shift run · V cycle · B auto · M map · G bird view · Esc release cursor</p>
           <p class="credit">Map data © OpenStreetMap contributors, ODbL 1.0</p>
         </div>
       </div>
@@ -101,6 +106,10 @@ export class Hud {
     this.el.toast.classList.add("on");
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => this.el.toast.classList.remove("on"), 2200);
+  }
+
+  setMode(label) {
+    this.el.mode.textContent = label;
   }
 
   setPrompt(label) {

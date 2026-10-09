@@ -197,8 +197,90 @@ function distanceToArterial([x, z]) {
   return best;
 }
 
+// Buildings come from Overture Maps, not from the Overpass extract.
+//
+// Overture merges OpenStreetMap with Google Open Buildings and Microsoft's ML
+// footprints — both of which are derived from satellite imagery. For this
+// bbox that is 12,071 buildings against 2,225 in the OSM-only extract: the
+// difference is every plot nobody has ever traced by hand, which in a layout
+// like HSR is most of the interior of every block. That is the "real buildings
+// from the satellite" this world needed.
+//
+// Heights are still mostly inferred. Overture carries a surveyed height for 5
+// buildings here and a storey count for 128; there is no free global source of
+// satellite-derived heights, so the rest are reasoned from footprint area, use
+// and road class exactly as before. Provenance is recorded per building so the
+// claim stays honest.
+const overturePath = path.join(root, "data/overture-buildings.json");
+let overture = [];
+try {
+  overture = readFileSync(overturePath, "utf8")
+    .split("\n").filter(Boolean).map((line) => JSON.parse(line));
+} catch {
+  console.warn("  ! data/overture-buildings.json missing — falling back to the OSM extract alone");
+}
+
+// Overture geometry is lon/lat GeoJSON; project it into the same local metres.
+function overtureRings(geom) {
+  if (!geom) return [];
+  if (geom.type === "Polygon") return [geom.coordinates[0]];
+  if (geom.type === "MultiPolygon") return geom.coordinates.map((poly) => poly[0]);
+  return [];
+}
+
 const buildings = [];
-for (const element of raw.elements) {
+const provenance = { OpenStreetMap: 0, "Google Open Buildings": 0, "Microsoft ML Buildings": 0, other: 0 };
+
+for (const record of overture) {
+  const geom = typeof record.geom === "string" ? JSON.parse(record.geom) : record.geom;
+  for (const coords of overtureRings(geom)) {
+    const points = closed(simplify(coords.map(([lon, lat]) => project({ lat, lon }))));
+    if (points.length < 3) continue;
+    const footprint = Math.abs(area(points));
+    if (footprint < 12) continue;
+    const seat = centroid(points);
+    // Keep the same slice the rest of the world covers.
+    if (Math.abs(seat[0]) > 1100 || Math.abs(seat[1]) > 1100) continue;
+
+    const toArterial = distanceToArterial(seat);
+    const tags = {
+      building: record.subtype || record.class || "yes",
+      name: record.name || null,
+    };
+    let height;
+    let source;
+    if (record.height > 2) {
+      height = record.height;
+      source = "surveyed";
+    } else if (record.num_floors > 0) {
+      height = 3.2 + (record.num_floors - 1) * 3.05;
+      source = "floors";
+    } else {
+      ({ height, source } = inferBuilding(tags, footprint, toArterial));
+    }
+
+    provenance[record.source] = (provenance[record.source] || 0) + 1;
+    buildings.push({
+      name: record.name || null,
+      kind: record.subtype || record.class || "generic",
+      amenity: record.class || null,
+      height: Math.round(height * 10) / 10,
+      heightSource: source,
+      // A shopfront needs to be on a street with shops on it. Overture has no
+      // shop tags of its own here, so this is proximity to an arterial plus the
+      // POI layer, which is still OSM.
+      shopfront: toArterial < 30 && footprint < 900,
+      area: Math.round(footprint),
+      centroid: [Math.round(seat[0] * 10) / 10, Math.round(seat[1] * 10) / 10],
+      points: area(points) < 0 ? points.reverse() : points,
+      src: record.source === "Google Open Buildings" ? "google"
+        : record.source === "Microsoft ML Buildings" ? "microsoft" : "osm",
+    });
+  }
+}
+
+// Fall back to the Overpass extract only if Overture was unavailable.
+for (const element of overture.length ? [] : raw.elements) {
   const tags = element.tags || {};
   if (!tags.building) continue;
   let points;
@@ -477,6 +559,7 @@ const bytes = readFileSync(outFile).length;
 console.log("world.json written");
 console.log("  roads      ", roads.length);
 console.log("  buildings  ", buildings.length, `(${buildings.filter((b) => b.heightSource !== "inferred").length} with real heights)`);
+console.log("  provenance ", JSON.stringify(provenance));
 console.log("  water      ", water.length);
 console.log("  green      ", green.length);
 console.log("  trees      ", trees.length, `(${trees.filter((t) => t.s === "tabebuia").length} tabebuia)`);
